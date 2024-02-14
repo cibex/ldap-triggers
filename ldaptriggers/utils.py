@@ -43,6 +43,10 @@ def fetch_ldap():
     Fetches LDAP server information
     """
     con = ldap.initialize(config.ldap_uri)
+    if config.ldap_root_cert:
+        con.set_option(ldap.OPT_X_TLS_CACERTFILE, config.ldap_root_cert)
+        con.set_option(ldap.OPT_X_TLS_NEWCTX, 0)
+        con.start_tls_s()
     password = get_ldap_password()
     con.bind_s(config.admin, password, ldap.AUTH_SIMPLE)
 

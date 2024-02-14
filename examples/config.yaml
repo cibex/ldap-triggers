@@ -1,6 +1,7 @@
 !Config
 org: dc=myorg,dc=company,dc=com
 ldap_secret: /etc/ldap.secret
+ldap_root_cert: /etc/ldap_root_cert.crt
 ldap_uri: ldap://ldapserver.company.com
 people: ou=employees,dc=myorg,dc=company,dc=com
 admin: cn=admin,dc=myorg,dc=company,dc=com

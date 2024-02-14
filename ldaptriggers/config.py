@@ -20,6 +20,7 @@ class Config:
         """
         self.ldap_uri = 'ldap://localhost'
         self.ldap_secret = '/etc/ldap.secret'
+        self.ldap_root_cert = '/etc/ldap_root_cert.crt'
         self.org = "dc=org,dc=company,dc=com"
         self.admin = "cn=admin," + self.org
         self.people = "ou=people," + self.org
@@ -47,6 +48,7 @@ class Config:
 
             self.ldap_uri = stored_config.ldap_uri
             self.ldap_secret = stored_config.ldap_secret
+            self.ldap_root_cert = stored_config.ldap_root_cert
             self.org = stored_config.org
             self.admin = stored_config.admin
             self.people = stored_config.people
