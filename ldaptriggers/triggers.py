@@ -35,23 +35,31 @@ def trigger(deleted_people, added_people, deleted_groups, added_groups, modified
     get_param_group = lambda g: [str(g.cn), str(g.gidNumber)]
     get_param_person_group = lambda p: [str(p.uid), str(p.groupName)] + p.groups
 
-    def call_trigger(entities, triggers, get_param):
+    get_env_person = lambda p: {'person_cn': p.cn, 'person_dn': p.dn}
+    get_env_group = lambda g: {'group_cn': g.cn, 'group_dn': g.dn}
+    get_env_person_group = lambda p: {'person_cn': p.cn, 'person_dn': p.dn}
+
+    def call_trigger(entities, triggers, get_param, get_env):
         print(f"call_trigger: entities:'{entities}' triggers:'{triggers}' get_param:'{get_param}' ")
         for e in entities:
             for t in triggers:
-                p = Popen([TRIGGERS_PATH + t] + get_param(e), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+                trigger_env = os.environ.copy()
+                trigger_env.update(get_env(e))
+                p = Popen([TRIGGERS_PATH + t] + get_param(e), stdin=PIPE, stdout=PIPE, stderr=PIPE, env=trigger_env)
                 output, err = p.communicate("")
                 rc = p.returncode
                 if rc != 0:
-                    logger.error(t + ' | ' + str(get_param(e)) + ' | ' + str(rc) + ' | ' + err.decode(ENCODING))
+                    logger.error(t + ' | ' + str(get_param(e)) + ' | ' + str(get_env(e))
+                                 + ' | ' + str(rc) + ' | ' + err.decode(ENCODING))
                 else:
-                    logger.info(t + ' | ' + str(get_param(e)) + ' | ' + str(rc) + ' | ' + output.decode(ENCODING))
+                    logger.info(t + ' | ' + str(get_param(e)) + ' | ' + str(get_env(e))
+                                + ' | ' + str(rc) + ' | ' + output.decode(ENCODING))
 
-    call_trigger(deleted_people, delete_people_triggers, get_param_person)
+    call_trigger(deleted_people, delete_people_triggers, get_param_person, get_env_person)
 
-    call_trigger(deleted_groups, delete_groups_triggers, get_param_group)
-    call_trigger(added_groups, add_groups_triggers, get_param_group)
-    call_trigger(modified_groups, modify_groups_triggers, get_param_group)
+    call_trigger(deleted_groups, delete_groups_triggers, get_param_group, get_env_group)
+    call_trigger(added_groups, add_groups_triggers, get_param_group, get_env_group)
+    call_trigger(modified_groups, modify_groups_triggers, get_param_group, get_env_group)
 
-    call_trigger(added_people, add_people_triggers, get_param_person_group)
-    call_trigger(modified_people, modify_people_triggers, get_param_person_group)
+    call_trigger(added_people, add_people_triggers, get_param_person_group, get_env_person_group)
+    call_trigger(modified_people, modify_people_triggers, get_param_person_group, get_env_person_group)
