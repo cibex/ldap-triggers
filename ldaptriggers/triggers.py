@@ -36,6 +36,7 @@ def trigger(deleted_people, added_people, deleted_groups, added_groups, modified
     get_param_person_group = lambda p: [str(p.uid), str(p.groupName)] + p.groups
 
     def call_trigger(entities, triggers, get_param):
+        print(f"call_trigger: entities:'{entities}' triggers:'{triggers}' get_param:'{get_param}' ")
         for e in entities:
             for t in triggers:
                 p = Popen([TRIGGERS_PATH + t] + get_param(e), stdin=PIPE, stdout=PIPE, stderr=PIPE)

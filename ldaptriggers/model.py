@@ -5,10 +5,11 @@ class Person:
     def __init__(self, tuple):
         info = tuple[1]
 
+        self.dn = tuple[0]
         self.uid = info['uid'][0].decode(ENCODING)
-        self.homeDirectory = info['homeDirectory'][0].decode(ENCODING)
-        self.uidNumber = info['uidNumber'][0].decode(ENCODING)
-        self.gidNumber = info['gidNumber'][0].decode(ENCODING)
+        self.homeDirectory = info['homeDirectory'][0].decode(ENCODING) if 'homeDirectory' in info else ''
+        self.uidNumber = info['uidNumber'][0].decode(ENCODING) if 'uidNumber' in info else ''
+        self.gidNumber = info['gidNumber'][0].decode(ENCODING) if 'gidNumber' in info else ''
         self.groupName = None
 
         self.groups = []
@@ -16,14 +17,16 @@ class Person:
     def __eq__(self, other):
         if not isinstance(other, Person):
             return NotImplemented
-        return (
-                self.uidNumber == other.uidNumber
-        )
+        if self.uidNumber:
+            return self.uidNumber == other.uidNumber
+        else:
+            return self.dn == other.dn
 
     def full_eq(self, other):
         if not isinstance(other, Person):
             return NotImplemented
         return (
+                self.dn == other.dn and
                 self.uid == other.uid and
                 self.homeDirectory == other.homeDirectory and
                 self.uidNumber == other.uidNumber and
@@ -49,23 +52,25 @@ class Group:
     def __init__(self, tuple):
         info = tuple[1]
 
+        self.dn = tuple[0]
         self.memberUid = info.setdefault('memberUid', [])
         self.memberUid = list(map(lambda m: m.decode(ENCODING), self.memberUid))
-        self.gidNumber = info['gidNumber'][0].decode(ENCODING)
+        self.gidNumber = info['gidNumber'][0].decode(ENCODING) if 'gidNumber' in info else ''
         self.cn = info['cn'][0].decode(ENCODING)
+        self.member = info['member'][0] if 'member' in info else None
 
     def __eq__(self, other):
         if not isinstance(other, Group):
             return NotImplemented
         return (
-                self.gidNumber == other.gidNumber
+                self.gidNumber == other.gidNumber if self.gidNumber else self.cn == other.cn
         )
 
     def full_eq(self, other):
         if not isinstance(other, Group):
             return NotImplemented
         return (
-                self.gidNumber == other.gidNumber and
+                (self.gidNumber == other.gidNumber if self.gidNumber else True) and
                 self.cn == other.cn
         )
 
@@ -75,4 +80,5 @@ class Group:
                 memberUid: {memberUid}
                 gidNumber: {gidNumber}
                 cn: {cn} 
-        """.format(memberUid=self.memberUid, gidNumber=self.gidNumber, cn=self.cn)
+                member: {member}
+        """.format(memberUid=self.memberUid, gidNumber=self.gidNumber, cn=self.cn, member=self.member)
