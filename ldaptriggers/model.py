@@ -7,6 +7,7 @@ class Person:
 
         self.dn = tuple[0]
         self.uid = info['uid'][0].decode(ENCODING)
+        self.cn = info['cn'][0].decode(ENCODING)
         self.homeDirectory = info['homeDirectory'][0].decode(ENCODING) if 'homeDirectory' in info else ''
         self.uidNumber = info['uidNumber'][0].decode(ENCODING) if 'uidNumber' in info else ''
         self.gidNumber = info['gidNumber'][0].decode(ENCODING) if 'gidNumber' in info else ''
@@ -27,6 +28,7 @@ class Person:
             return NotImplemented
         return (
                 self.dn == other.dn and
+                self.cn == other.cn and
                 self.uid == other.uid and
                 self.homeDirectory == other.homeDirectory and
                 self.uidNumber == other.uidNumber and
@@ -39,12 +41,14 @@ class Person:
         return """
             Person:
                 uid: {uid}
+                cn: {cn}
                 homeDirectory: {homeDirectory}
                 uidNumber: {uidNumber}
                 gidNumber: {gidNumber}
                 groupName: {groupName}
                 groups: {groups}
-        """.format(uid=self.uid, homeDirectory=self.homeDirectory, uidNumber=self.uidNumber, gidNumber=self.gidNumber,
+        """.format(uid=self.uid, cn=self.cn, homeDirectory=self.homeDirectory,
+                   uidNumber=self.uidNumber, gidNumber=self.gidNumber,
                    groupName=self.groupName, groups=str(self.groups))
 
 
