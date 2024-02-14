@@ -40,7 +40,7 @@ def trigger(deleted_people, added_people, deleted_groups, added_groups, modified
     get_env_person_group = lambda p: {'person_cn': p.cn, 'person_dn': p.dn}
 
     def call_trigger(entities, triggers, get_param, get_env):
-        print(f"call_trigger: entities:'{entities}' triggers:'{triggers}' get_param:'{get_param}' ")
+        logger.debug(f"call_trigger: entities:'{entities}' triggers:'{triggers}' get_param:'{get_param}' ")
         for e in entities:
             for t in triggers:
                 trigger_env = os.environ.copy()
