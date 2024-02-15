@@ -20,9 +20,7 @@ from . import signals
               help='Clears all files from /etc/ldaptriggers/ and logs from /var/log/ldaptriggers.log. Calling it with --init will be required next time.')
 @click.option('-s', '--single', is_flag=True,
               help='Triggers a single run.')
-@click.option('-t', '--timeout', is_flag=False,
-              help='Set the timeout between two sync runs (overrides the configured timeout value).')
-def cli(init, daemon, fetch, clear, single, timeout):
+def cli(init, daemon, fetch, clear, single):
     """
     LDAPTRIGGERS is a tool that allows triggering some actions when an LDAP change is detected.\n
 
@@ -53,4 +51,4 @@ def cli(init, daemon, fetch, clear, single, timeout):
         # run in foreground
         while True:
             sync()
-            time.sleep(timeout or config.timeout or TIMEOUT_DEBUG)
+            time.sleep(TIMEOUT_DEBUG)
