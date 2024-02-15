@@ -4,6 +4,8 @@ from .utils import initialize, sudo, fetch_ldap, store_to_yaml
 from .params import *
 from .daemonize import daemonize
 from .sync import sync
+from .config import config
+from .log import get_logger
 from . import signals
 
 
@@ -16,7 +18,11 @@ from . import signals
               help='Fetches ldap server and stores the info in people.yaml and groups.yaml but it does not execute any trigger.')
 @click.option('-c', '--clear', is_flag=True,
               help='Clears all files from /etc/ldaptriggers/ and logs from /var/log/ldaptriggers.log. Calling it with --init will be required next time.')
-def cli(init, daemon, fetch, clear):
+@click.option('-s', '--single', is_flag=True,
+              help='Triggers a single run.')
+@click.option('-t', '--timeout', is_flag=False,
+              help='Set the timeout between two sync runs (overrides the configured timeout value).')
+def cli(init, daemon, fetch, clear, single, timeout):
     """
     LDAPTRIGGERS is a tool that allows triggering some actions when an LDAP change is detected.\n
 
@@ -39,10 +45,12 @@ def cli(init, daemon, fetch, clear):
         people, groups = fetch_ldap()
         store_to_yaml(people, PEOPLE_PATH)
         store_to_yaml(groups, GROUPS_PATH)
+    elif single:
+        sync()
     elif clear:
         pass
     else:
         # run in foreground
         while True:
             sync()
-            time.sleep(TIMEOUT_DEBUG)
+            time.sleep(timeout or config.timeout or TIMEOUT_DEBUG)
